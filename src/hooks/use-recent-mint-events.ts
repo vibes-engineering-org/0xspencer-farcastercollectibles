@@ -129,30 +129,6 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
     setError(null);
 
     try {
-      // Get the latest block number first
-      const latestBlockResponse = await fetch(getAlchemyUrl(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: '2.0',
-          method: 'eth_blockNumber',
-          params: []
-        })
-      });
-
-      if (!latestBlockResponse.ok) {
-        throw new Error('Failed to fetch latest block number');
-      }
-
-      const latestBlockData = await latestBlockResponse.json();
-      const latestBlock = parseInt(latestBlockData.result, 16);
-      
-      // Look for mint events in the last 10000 blocks (approximately last ~8 hours on Base)
-      const fromBlock = Math.max(0, latestBlock - 10000);
-
       // Fetch mint events using eth_getLogs
       const logsResponse = await fetch(getAlchemyUrl(), {
         method: 'POST',
@@ -166,7 +142,7 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
           params: [{
             address: CONTRACT_ADDRESS,
             topics: [MINT_EVENT_TOPIC],
-            fromBlock: '0x' + fromBlock.toString(16),
+            fromBlock: 'latest',
             toBlock: 'latest'
           }]
         })
