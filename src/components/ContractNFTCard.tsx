@@ -39,16 +39,17 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
   // Get the image URL from metadata
   const imageUrl = nft.metadata?.image || nft.metadata?.image_url || PLACEHOLDER_IMAGE;
   
-  // Clean the token ID by removing "cast by @{author}" prefix
-  const cleanTokenId = (tokenId: string | undefined | null): string => {
-    if (!tokenId || typeof tokenId !== 'string') return '';
-    // Remove "cast by @username" pattern from the beginning of the token ID
+  // Clean NFT names by removing "cast by @{author}" prefix
+  const cleanNFTName = (name: string | undefined | null): string => {
+    if (!name || typeof name !== 'string') return '';
+    // Remove "cast by @username" pattern from the beginning of the name
     const castByPattern = /^cast by @[^,\s]+,?\s*/i;
-    return tokenId.replace(castByPattern, '').trim();
+    return name.replace(castByPattern, '').trim();
   };
 
-  const displayTokenId = cleanTokenId(nft.tokenId);
-  const nftName = nft.metadata?.name || `NFT #${displayTokenId}`;
+  const displayTokenId = nft.tokenId || '';
+  const rawNftName = nft.metadata?.name || `NFT #${displayTokenId}`;
+  const nftName = cleanNFTName(rawNftName);
   
   // Find author attribute from metadata
   const getAuthorInfo = () => {
