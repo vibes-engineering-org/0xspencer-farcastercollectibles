@@ -59,7 +59,7 @@ export function useContractNFTs(): UseContractNFTsReturn {
   };
 
   // Function to fetch NFT metadata
-  const fetchNFTMetadata = async (tokenId: string): Promise<NFTMetadata | null> => {
+  const fetchNFTMetadata = useCallback(async (tokenId: string): Promise<NFTMetadata | null> => {
     try {
       const url = `${getAlchemyUrl()}/getNFTMetadata?contractAddress=${CONTRACT_ADDRESS}&tokenId=${tokenId}&tokenType=ERC721`;
       const response = await fetch(url, {
@@ -80,7 +80,7 @@ export function useContractNFTs(): UseContractNFTsReturn {
       console.warn(`Error fetching metadata for token ${tokenId}:`, error);
       return null;
     }
-  };
+  }, []);
 
 
   // Fetch user's NFTs from the contract
@@ -126,7 +126,7 @@ export function useContractNFTs(): UseContractNFTsReturn {
     } finally {
       setIsLoadingUserNFTs(false);
     }
-  }, [address, isConnected]);
+  }, [address, isConnected, fetchNFTMetadata]);
 
   // Fetch recently minted NFTs
   const fetchRecentNFTs = useCallback(async (offset: number = 0, append: boolean = false) => {
@@ -201,7 +201,7 @@ export function useContractNFTs(): UseContractNFTsReturn {
         setIsLoadingMoreRecent(false);
       }
     }
-  }, []);
+  }, [fetchNFTMetadata]);
 
   // Load more recent NFTs
   const loadMoreRecent = useCallback(() => {
