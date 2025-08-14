@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useState } from "react";
 import { cn } from "~/lib/utils";
-import { Button } from "~/components/ui/button";
 
 interface NFTMetadata {
   name?: string;
@@ -84,7 +83,7 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
   };
 
   return (
-    <div className={cn("bg-card border rounded-lg p-4 space-y-3", className)}>
+    <div className={cn("bg-card border rounded-lg p-4 space-y-3 w-full min-w-0", className)}>
       {/* NFT Image */}
       <div 
         className={cn(
@@ -126,14 +125,12 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
         {authorInfo && (
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">Author:</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-auto p-0 text-xs text-primary hover:underline"
+            <button
+              className="text-xs text-primary underline decoration-primary/60 underline-offset-2 font-medium active:text-primary/80 transition-colors"
               onClick={handleAuthorClick}
             >
               {authorInfo.display}
-            </Button>
+            </button>
           </div>
         )}
 
