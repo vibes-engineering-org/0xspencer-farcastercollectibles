@@ -26,7 +26,7 @@ export default async function Image() {
           overflow: "hidden",
         }}
       >
-        {/* Background gradient with Farcaster purple and electric blue */}
+        {/* Background gradient with NFT-focused colors */}
         <div
           style={{
             position: "absolute",
@@ -34,12 +34,12 @@ export default async function Image() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "linear-gradient(135deg, #8A63D2 0%, #1E90FF 100%)",
-            opacity: 0.9,
+            background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)",
+            opacity: 0.95,
           }}
         />
 
-        {/* Subtle pattern overlay for depth */}
+        {/* NFT grid pattern overlay */}
         <div
           style={{
             position: "absolute",
@@ -48,7 +48,9 @@ export default async function Image() {
             right: 0,
             bottom: 0,
             backgroundImage:
-              "radial-gradient(circle at 20% 80%, rgba(138, 99, 210, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(30, 144, 255, 0.4) 0%, transparent 50%)",
+              "radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 2px, transparent 2px), radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.08) 1px, transparent 1px)",
+            backgroundSize: "80px 80px, 40px 40px",
+            opacity: 0.6,
           }}
         />
 
@@ -141,38 +143,160 @@ export default async function Image() {
           {/* Project description */}
           <p
             style={{
-              fontSize: "36px",
-              fontWeight: "600",
-              color: "rgba(255, 255, 255, 0.95)",
+              fontSize: "32px",
+              fontWeight: "500",
+              color: "rgba(255, 255, 255, 0.9)",
               textAlign: "center",
-              marginBottom: "56px",
-              lineHeight: 1.3,
-              textShadow: "0 3px 12px rgba(0, 0, 0, 0.4)",
-              maxWidth: "800px",
+              marginBottom: "48px",
+              lineHeight: 1.4,
+              textShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
+              maxWidth: "900px",
               fontFamily: "system-ui, -apple-system, sans-serif",
             }}
           >
             {PROJECT_DESCRIPTION}
           </p>
 
+          {/* Feature highlights */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "48px",
+              marginBottom: "40px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              <div
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  borderRadius: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "2px solid rgba(255, 255, 255, 0.3)",
+                }}
+              >
+                <div
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    backgroundColor: "#ffffff",
+                    borderRadius: "8px",
+                    border: "2px solid rgba(99, 102, 241, 0.8)",
+                  }}
+                />
+              </div>
+              <span
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  color: "rgba(255, 255, 255, 0.9)",
+                  fontFamily: "system-ui, -apple-system, sans-serif",
+                }}
+              >
+                Your Collection
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              <div
+                style={{
+                  width: "64px",
+                  height: "64px",
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  borderRadius: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "2px solid rgba(255, 255, 255, 0.3)",
+                }}
+              >
+                <div
+                  style={{
+                    width: "40px",
+                    height: "24px",
+                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                    borderRadius: "4px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "2px",
+                    padding: "4px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "4px",
+                      backgroundColor: "rgba(99, 102, 241, 0.8)",
+                      borderRadius: "2px",
+                    }}
+                  />
+                  <div
+                    style={{
+                      width: "70%",
+                      height: "4px",
+                      backgroundColor: "rgba(139, 92, 246, 0.8)",
+                      borderRadius: "2px",
+                    }}
+                  />
+                  <div
+                    style={{
+                      width: "85%",
+                      height: "4px",
+                      backgroundColor: "rgba(236, 72, 153, 0.8)",
+                      borderRadius: "2px",
+                    }}
+                  />
+                </div>
+              </div>
+              <span
+                style={{
+                  fontSize: "18px",
+                  fontWeight: "600",
+                  color: "rgba(255, 255, 255, 0.9)",
+                  fontFamily: "system-ui, -apple-system, sans-serif",
+                }}
+              >
+                Recent Mints
+              </span>
+            </div>
+          </div>
+
           {/* Farcaster branding element */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "16px",
-              padding: "20px 40px",
-              backgroundColor: "rgba(255, 255, 255, 0.2)",
-              borderRadius: "100px",
-              border: "3px solid rgba(255, 255, 255, 0.4)",
-              backdropFilter: "blur(10px)",
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+              gap: "12px",
+              padding: "16px 32px",
+              backgroundColor: "rgba(255, 255, 255, 0.15)",
+              borderRadius: "50px",
+              border: "2px solid rgba(255, 255, 255, 0.3)",
+              backdropFilter: "blur(8px)",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
             }}
           >
             {/* Farcaster icon */}
             <svg
-              width="32"
-              height="32"
+              width="24"
+              height="24"
               viewBox="0 0 256 256"
               fill="none"
               style={{
@@ -187,11 +311,11 @@ export default async function Image() {
             </svg>
             <span
               style={{
-                fontSize: "26px",
-                fontWeight: "700",
+                fontSize: "20px",
+                fontWeight: "600",
                 color: "#ffffff",
                 fontFamily: "system-ui, -apple-system, sans-serif",
-                letterSpacing: "-0.5px",
+                letterSpacing: "-0.3px",
               }}
             >
               Farcaster Mini App
