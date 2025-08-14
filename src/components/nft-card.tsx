@@ -131,13 +131,13 @@ export function NFTCard({
 
       try {
         // Find the chain by name using shared utility
-        const selectedChain = findChainByName(network || "ethereum");
+        const selectedChain = findChainByName(network || "base");
         
         if (!selectedChain) {
           console.warn(
-            `Chain "${network}" not found, defaulting to Ethereum mainnet`,
+            `Chain "${network}" not found, defaulting to Base mainnet`,
           );
-          setNetworkName("Ethereum");
+          setNetworkName("Base");
         } else {
           setNetworkName(selectedChain.name);
         }

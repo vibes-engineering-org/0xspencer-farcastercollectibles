@@ -174,8 +174,8 @@ export function NFTMintButton({
   const targetChain = React.useMemo(() => {
     const foundChain = findChainByName(network);
     if (!foundChain) {
-      console.warn(`NFTMintButton: Network "${network}" not recognized, defaulting to Ethereum mainnet`);
-      return getChainById(1); // Default to Ethereum mainnet
+      console.warn(`NFTMintButton: Network "${network}" not recognized, defaulting to Base mainnet`);
+      return getChainById(8453); // Default to Base mainnet
     }
     return foundChain;
   }, [network]);

@@ -3,7 +3,6 @@ import {
   arbitrum,
   base,
   celo,
-  mainnet,
   optimism,
   monadTestnet,
 } from "wagmi/chains";
@@ -17,7 +16,7 @@ const alchemyApiKey = process.env.NEXT_PUBLIC_ALCHEMY_KEY;
 export const config = createConfig(
   getDefaultConfig({
     appName: PROJECT_TITLE,
-    chains: [base, arbitrum, optimism, celo, mainnet, monadTestnet],
+    chains: [base, arbitrum, optimism, celo, monadTestnet],
     additionalConnectors: [farcasterMiniApp(), injected()],
     transports: {
       [arbitrum.id]: http(

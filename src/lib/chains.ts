@@ -40,7 +40,7 @@ export const SUPPORTED_CHAINS = [
  */
 export function getChainById(chainId: number): Chain {
   const config = SUPPORTED_CHAINS.find((c) => c.id === chainId);
-  return config?.chain || chains.mainnet;
+  return config?.chain || chains.base;
 }
 
 /**

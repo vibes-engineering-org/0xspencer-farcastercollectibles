@@ -55,7 +55,7 @@ export function useContractNFTs(): UseContractNFTsReturn {
     if (!alchemyKey) {
       throw new Error('NEXT_PUBLIC_ALCHEMY_KEY is not configured');
     }
-    return `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}`;
+    return `https://base-mainnet.g.alchemy.com/v2/${alchemyKey}`;
   };
 
   // Function to fetch NFT metadata
