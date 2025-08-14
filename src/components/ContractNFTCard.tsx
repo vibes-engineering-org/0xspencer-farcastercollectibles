@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useState } from "react";
 import { cn } from "~/lib/utils";
-import { useProfile } from "~/hooks/use-profile";
 import { Button } from "~/components/ui/button";
 
 interface NFTMetadata {
@@ -11,6 +10,7 @@ interface NFTMetadata {
   description?: string;
   image?: string;
   image_url?: string;
+  external_url?: string;
   attributes?: Array<{
     trait_type: string;
     value: string | number;
@@ -36,7 +36,6 @@ const PLACEHOLDER_IMAGE =
 
 export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
   const [imageError, setImageError] = useState(false);
-  const { viewProfile } = useProfile();
 
   // Get the image URL from metadata
   const imageUrl = nft.metadata?.image || nft.metadata?.image_url || PLACEHOLDER_IMAGE;
@@ -67,8 +66,10 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
   const authorInfo = getAuthorInfo();
 
   const handleAuthorClick = () => {
-    if (authorInfo?.type === 'fid' && typeof authorInfo.value === 'number') {
-      viewProfile(authorInfo.value);
+    if (authorInfo) {
+      const authorValue = authorInfo.type === 'username' ? authorInfo.value : authorInfo.value.toString();
+      const farcasterUrl = `https://farcaster.xyz/${authorValue}`;
+      window.open(farcasterUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -76,10 +77,22 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
     setImageError(true);
   };
 
+  const handleImageClick = () => {
+    if (nft.metadata?.external_url) {
+      window.open(nft.metadata.external_url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <div className={cn("bg-card border rounded-lg p-4 space-y-3", className)}>
       {/* NFT Image */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800">
+      <div 
+        className={cn(
+          "relative aspect-square w-full overflow-hidden rounded-md bg-gray-100 dark:bg-gray-800",
+          nft.metadata?.external_url && "cursor-pointer hover:opacity-80 transition-opacity"
+        )}
+        onClick={handleImageClick}
+      >
         <Image
           src={imageError ? PLACEHOLDER_IMAGE : imageUrl}
           alt={nftName}
@@ -98,7 +111,7 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
             {nftName}
           </h3>
           <p className="text-xs text-muted-foreground">
-            Token ID: {nft.tokenId}
+            {nft.tokenId}
           </p>
         </div>
 
@@ -113,41 +126,17 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
         {authorInfo && (
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">Author:</span>
-            {authorInfo.type === 'fid' ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 text-xs text-primary hover:underline"
-                onClick={handleAuthorClick}
-              >
-                {authorInfo.display}
-              </Button>
-            ) : (
-              <span className="text-xs text-foreground">
-                {authorInfo.display}
-              </span>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-auto p-0 text-xs text-primary hover:underline"
+              onClick={handleAuthorClick}
+            >
+              {authorInfo.display}
+            </Button>
           </div>
         )}
 
-        {/* Additional Attributes */}
-        {nft.metadata?.attributes && nft.metadata.attributes.length > 0 && (
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-foreground">Attributes:</p>
-            <div className="grid grid-cols-2 gap-1">
-              {nft.metadata.attributes
-                .filter(attr => attr.trait_type?.toLowerCase() !== 'author')
-                .slice(0, 4)
-                .map((attr, index) => (
-                  <div key={index} className="text-xs">
-                    <span className="text-muted-foreground">{attr.trait_type}:</span>
-                    <br />
-                    <span className="text-foreground font-medium">{attr.value}</span>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

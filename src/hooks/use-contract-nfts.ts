@@ -115,7 +115,7 @@ export function useContractNFTs(): UseContractNFTsReturn {
           tokenId: nft.tokenId,
           metadata,
           contractAddress: CONTRACT_ADDRESS,
-          chain: 'ethereum'
+          chain: 'base'
         });
       }
 
@@ -173,7 +173,7 @@ export function useContractNFTs(): UseContractNFTsReturn {
             tokenId: tokenId.toString(),
             metadata,
             contractAddress: CONTRACT_ADDRESS,
-            chain: 'ethereum'
+            chain: 'base'
           });
         } catch (error) {
           console.warn(`Failed to fetch token ${tokenId}:`, error);
