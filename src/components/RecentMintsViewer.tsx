@@ -45,7 +45,7 @@ export function RecentMintsViewer() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-semibold">
-                Recent Mints
+                10 Most Recent Mints
               </CardTitle>
               <Button
                 variant="ghost"
@@ -58,9 +58,6 @@ export function RecentMintsViewer() {
                 <span>Refresh</span>
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground">
-              The 10 most recently minted Cast Collectibles from contract events
-            </p>
           </CardHeader>
           <CardContent>
             {isLoading ? (
