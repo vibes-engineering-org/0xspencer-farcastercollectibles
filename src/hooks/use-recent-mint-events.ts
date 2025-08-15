@@ -123,45 +123,94 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
     }
   };
 
+  // Function to get the latest block number
+  const getLatestBlockNumber = useCallback(async (): Promise<number> => {
+    const response = await fetch(getAlchemyUrl(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: 1,
+        jsonrpc: '2.0',
+        method: 'eth_blockNumber',
+        params: []
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch latest block number');
+    }
+
+    const data = await response.json();
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+
+    return parseInt(data.result, 16);
+  }, []);
+
+  // Function to fetch logs for a specific block range
+  const fetchLogsForRange = useCallback(async (fromBlock: number, toBlock: number) => {
+    const response = await fetch(getAlchemyUrl(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: 1,
+        jsonrpc: '2.0',
+        method: 'eth_getLogs',
+        params: [{
+          address: CONTRACT_ADDRESS,
+          topics: [MINT_EVENT_TOPIC],
+          fromBlock: `0x${fromBlock.toString(16)}`,
+          toBlock: `0x${toBlock.toString(16)}`
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch mint event logs');
+    }
+
+    const data = await response.json();
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+
+    return data.result || [];
+  }, []);
+
   // Function to fetch recent mint events
   const fetchRecentMints = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // Fetch mint events using eth_getLogs
-      const logsResponse = await fetch(getAlchemyUrl(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: '2.0',
-          method: 'eth_getLogs',
-          params: [{
-            address: CONTRACT_ADDRESS,
-            topics: [MINT_EVENT_TOPIC],
-            fromBlock: 'latest',
-            toBlock: 'latest'
-          }]
-        })
-      });
+      // Get the latest block number
+      const latestBlock = await getLatestBlockNumber();
+      let allLogs: any[] = [];
+      let currentToBlock = latestBlock;
+      let currentFromBlock = latestBlock - 500;
 
-      if (!logsResponse.ok) {
-        throw new Error('Failed to fetch mint event logs');
+      // Keep fetching until we get at least 10 logs
+      while (allLogs.length < 10 && currentFromBlock >= 0) {
+        const logs = await fetchLogsForRange(currentFromBlock, currentToBlock);
+        allLogs = allLogs.concat(logs);
+
+        // If we have enough logs, break
+        if (allLogs.length >= 10) {
+          break;
+        }
+
+        // Move to the next range
+        currentToBlock = currentFromBlock;
+        currentFromBlock = currentFromBlock - 500;
       }
-
-      const logsData = await logsResponse.json();
-      
-      if (logsData.error) {
-        throw new Error(logsData.error.message);
-      }
-
-      const logs = logsData.result || [];
       
       // Parse the mint events
-      const mintEvents: MintEvent[] = logs
+      const mintEvents: MintEvent[] = allLogs
         .map((log: any) => parseMintEventLog(log))
         .filter((event: MintEvent | null): event is MintEvent => event !== null)
         .sort((a: MintEvent, b: MintEvent) => b.blockNumber - a.blockNumber) // Sort by block number descending (most recent first)
@@ -198,7 +247,7 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchNFTMetadata]);
+  }, [fetchNFTMetadata, getLatestBlockNumber, fetchLogsForRange]);
 
   // Refetch function
   const refetch = useCallback(() => {
