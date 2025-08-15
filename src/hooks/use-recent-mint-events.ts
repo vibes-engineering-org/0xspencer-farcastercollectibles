@@ -37,6 +37,14 @@ interface RecentMintNFT {
   blockNumber: number;
   transactionHash: string;
   timestamp?: number;
+  minterFarcasterUser?: FarcasterUser | null;
+}
+
+interface FarcasterUser {
+  fid: number;
+  username: string;
+  display_name: string;
+  pfp_url: string;
 }
 
 interface UseRecentMintEventsReturn {
@@ -75,6 +83,55 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
       return (nft as any).metadata || nft.raw?.metadata || null;
     } catch (error) {
       console.warn(`Error fetching metadata for token ${tokenId}:`, error);
+      return null;
+    }
+  }, []);
+
+  // Function to fetch Farcaster user by address using Neynar API
+  const fetchFarcasterUserByAddress = useCallback(async (address: string): Promise<FarcasterUser | null> => {
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_NEYNAR_API_KEY || process.env.NEYNAR_API_KEY;
+      if (!apiKey) {
+        console.warn('No Neynar API key found');
+        return null;
+      }
+
+      const url = `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${encodeURIComponent(address)}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          api_key: apiKey,
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        console.warn(`Neynar API error: ${response.status}`);
+        return null;
+      }
+
+      const data = await response.json();
+      
+      // The response is an object with addresses as keys
+      for (const [addr, userList] of Object.entries(data)) {
+        if (addr.toLowerCase() === address.toLowerCase() && Array.isArray(userList) && userList.length > 0) {
+          const user = userList[0] as any;
+          return {
+            fid: user.fid,
+            username: user.username,
+            display_name: user.display_name,
+            pfp_url: user.pfp_url,
+          };
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.warn(`Error fetching Farcaster user for address ${address}:`, error);
       return null;
     }
   }, []);
@@ -145,7 +202,7 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
       const latestBlock = await getLatestBlockNumber();
       let allLogs: any[] = [];
       let currentToBlock = latestBlock;
-      let currentFromBlock = latestBlock - 499;
+      let currentFromBlock = latestBlock - 498;
 
       // Keep fetching until we get at least 10 logs
       while (allLogs.length < 10 && currentFromBlock >= 0) {
@@ -159,7 +216,7 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
 
         // Move to the next range
         currentToBlock = currentFromBlock;
-        currentFromBlock = currentFromBlock - 499;
+        currentFromBlock = currentFromBlock - 498;
       }
       
       // Parse the mint events
@@ -169,24 +226,31 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
         .sort((a: MintEvent, b: MintEvent) => b.blockNumber - a.blockNumber) // Sort by block number descending (most recent first)
         .slice(0, 10); // Take only the top 10
 
-      // Fetch metadata for each mint event
+      // Fetch metadata and Farcaster user data for each mint event
       const recentMintsWithMetadata: RecentMintNFT[] = [];
       
       for (const event of mintEvents) {
         try {
-          const metadata = await fetchNFTMetadata(event.tokenId);
+          // Fetch metadata and Farcaster user in parallel
+          const [metadata, minterFarcasterUser] = await Promise.all([
+            fetchNFTMetadata(event.tokenId),
+            fetchFarcasterUserByAddress(event.to)
+          ]);
+
           recentMintsWithMetadata.push({
             ...event,
             metadata,
+            minterFarcasterUser,
             contractAddress: CONTRACT_ADDRESS,
             chain: 'base'
           });
         } catch (error) {
-          console.warn(`Failed to fetch metadata for token ${event.tokenId}:`, error);
-          // Still add the event without metadata
+          console.warn(`Failed to fetch data for token ${event.tokenId}:`, error);
+          // Still add the event without metadata or minter info
           recentMintsWithMetadata.push({
             ...event,
             metadata: null,
+            minterFarcasterUser: null,
             contractAddress: CONTRACT_ADDRESS,
             chain: 'base'
           });
@@ -200,7 +264,7 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [fetchNFTMetadata, getLatestBlockNumber, fetchLogsForRange]);
+  }, [fetchNFTMetadata, fetchFarcasterUserByAddress, getLatestBlockNumber, fetchLogsForRange]);
 
   // Refetch function
   const refetch = useCallback(() => {

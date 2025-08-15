@@ -25,15 +25,23 @@ interface NFTToken {
   chain: string;
 }
 
+interface FarcasterUser {
+  fid: number;
+  username: string;
+  display_name: string;
+  pfp_url: string;
+}
+
 interface ContractNFTCardProps {
   nft: NFTToken;
   className?: string;
+  minterFarcasterUser?: FarcasterUser | null;
 }
 
 const PLACEHOLDER_IMAGE =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2YxZjFmMSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiM5OTkiPk5GVCBJbWFnZTwvdGV4dD48L3N2Zz4=";
 
-export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
+export function ContractNFTCard({ nft, className, minterFarcasterUser }: ContractNFTCardProps) {
   const [imageError, setImageError] = useState(false);
 
   // Get the image URL from metadata
@@ -83,6 +91,13 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
     }
   };
 
+  const handleMinterClick = () => {
+    if (minterFarcasterUser) {
+      const farcasterUrl = `https://farcaster.xyz/${minterFarcasterUser.username}`;
+      window.open(farcasterUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const handleImageError = () => {
     setImageError(true);
   };
@@ -115,14 +130,11 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
 
       {/* NFT Info */}
       <div className="space-y-2">
-        {/* Name and Token ID */}
+        {/* Name */}
         <div>
           <h3 className="font-semibold text-sm text-foreground truncate">
             {nftName}
           </h3>
-          <p className="text-xs text-muted-foreground">
-            {displayTokenId}
-          </p>
         </div>
 
         {/* Description */}
@@ -141,6 +153,19 @@ export function ContractNFTCard({ nft, className }: ContractNFTCardProps) {
               onClick={handleAuthorClick}
             >
               {authorInfo.display}
+            </button>
+          </div>
+        )}
+
+        {/* Minter */}
+        {minterFarcasterUser && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Minted by:</span>
+            <button
+              className="text-xs text-primary underline decoration-primary/60 underline-offset-2 font-medium active:text-primary/80 transition-colors"
+              onClick={handleMinterClick}
+            >
+              @{minterFarcasterUser.username}
             </button>
           </div>
         )}

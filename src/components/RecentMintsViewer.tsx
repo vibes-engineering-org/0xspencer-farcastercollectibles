@@ -82,7 +82,8 @@ export function RecentMintsViewer() {
                       metadata: nft.metadata,
                       contractAddress: nft.contractAddress,
                       chain: nft.chain
-                    }} 
+                    }}
+                    minterFarcasterUser={nft.minterFarcasterUser} 
                   />
                 ))}
               </div>
