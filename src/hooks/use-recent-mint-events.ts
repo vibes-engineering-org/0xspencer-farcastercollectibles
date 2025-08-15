@@ -90,7 +90,7 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
   // Function to fetch Farcaster user by address using Neynar API
   const fetchFarcasterUserByAddress = useCallback(async (address: string): Promise<FarcasterUser | null> => {
     try {
-      const apiKey = process.env.NEXT_PUBLIC_NEYNAR_API_KEY || process.env.NEYNAR_API_KEY;
+      const apiKey = process.env.NEXT_PUBLIC_NEYNAR_API_KEY;
       if (!apiKey) {
         console.warn('No Neynar API key found');
         return null;
