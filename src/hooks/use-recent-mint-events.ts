@@ -96,7 +96,7 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
 
       // Extract indexed parameters from topics
       const to = '0x' + log.topics[1].slice(26); // Remove padding from address
-      const tokenId = parseInt(log.topics[2], 16).toString(); // Convert hex to decimal
+      const tokenId = BigInt(log.topics[2]).toString(); // Convert hex to decimal using BigInt
       const fid = parseInt(log.topics[3], 16).toString(); // Convert hex to decimal
       
       // Extract castHash from data (first 32 bytes after removing 0x)
@@ -145,7 +145,7 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
       const latestBlock = await getLatestBlockNumber();
       let allLogs: any[] = [];
       let currentToBlock = latestBlock;
-      let currentFromBlock = latestBlock - 500;
+      let currentFromBlock = latestBlock - 499;
 
       // Keep fetching until we get at least 10 logs
       while (allLogs.length < 10 && currentFromBlock >= 0) {
@@ -159,7 +159,7 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
 
         // Move to the next range
         currentToBlock = currentFromBlock;
-        currentFromBlock = currentFromBlock - 500;
+        currentFromBlock = currentFromBlock - 499;
       }
       
       // Parse the mint events
