@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import { Alchemy, Network } from 'alchemy-sdk';
 
 interface MintEvent {
   tokenId: string;
@@ -53,33 +54,25 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Function to get Alchemy API URL
-  const getAlchemyUrl = () => {
-    const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_KEY;
-    if (!alchemyKey) {
+  // Initialize Alchemy SDK
+  const getAlchemy = () => {
+    const apiKey = process.env.NEXT_PUBLIC_ALCHEMY_KEY;
+    if (!apiKey) {
       throw new Error('NEXT_PUBLIC_ALCHEMY_KEY is not configured');
     }
-    return `https://base-mainnet.g.alchemy.com/v2/${alchemyKey}`;
+    const settings = {
+      apiKey: apiKey,
+      network: Network.BASE_MAINNET,
+    };
+    return new Alchemy(settings);
   };
 
   // Function to fetch NFT metadata
   const fetchNFTMetadata = useCallback(async (tokenId: string): Promise<NFTMetadata | null> => {
     try {
-      const url = `${getAlchemyUrl()}/getNFTMetadata?contractAddress=${CONTRACT_ADDRESS}&tokenId=${tokenId}&tokenType=ERC721`;
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'accept': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        console.warn(`Failed to fetch metadata for token ${tokenId}`);
-        return null;
-      }
-
-      const data = await response.json();
-      return data.metadata || null;
+      const alchemy = getAlchemy();
+      const nft = await alchemy.nft.getNftMetadata(CONTRACT_ADDRESS, tokenId);
+      return (nft as any).metadata || nft.raw?.metadata || null;
     } catch (error) {
       console.warn(`Error fetching metadata for token ${tokenId}:`, error);
       return null;
@@ -125,61 +118,21 @@ export function useRecentMintEvents(): UseRecentMintEventsReturn {
 
   // Function to get the latest block number
   const getLatestBlockNumber = useCallback(async (): Promise<number> => {
-    const response = await fetch(getAlchemyUrl(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: 1,
-        jsonrpc: '2.0',
-        method: 'eth_blockNumber',
-        params: []
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch latest block number');
-    }
-
-    const data = await response.json();
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
-
-    return parseInt(data.result, 16);
+    const alchemy = getAlchemy();
+    const blockNumber = await alchemy.core.getBlockNumber();
+    return blockNumber;
   }, []);
 
   // Function to fetch logs for a specific block range
   const fetchLogsForRange = useCallback(async (fromBlock: number, toBlock: number) => {
-    const response = await fetch(getAlchemyUrl(), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        id: 1,
-        jsonrpc: '2.0',
-        method: 'eth_getLogs',
-        params: [{
-          address: CONTRACT_ADDRESS,
-          topics: [MINT_EVENT_TOPIC],
-          fromBlock: `0x${fromBlock.toString(16)}`,
-          toBlock: `0x${toBlock.toString(16)}`
-        }]
-      })
+    const alchemy = getAlchemy();
+    const logs = await alchemy.core.getLogs({
+      fromBlock: fromBlock,
+      toBlock: toBlock,
+      address: CONTRACT_ADDRESS,
+      topics: [MINT_EVENT_TOPIC],
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch mint event logs');
-    }
-
-    const data = await response.json();
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
-
-    return data.result || [];
+    return logs;
   }, []);
 
   // Function to fetch recent mint events
